@@ -28,6 +28,7 @@ import smtplib
 import sqlite3
 import sys
 import textwrap
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
@@ -66,9 +67,9 @@ if ENV_PATH.exists():
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
-HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "meta-llama/llama-3.1-8b-instruct:free")
-OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "google/gemma-3-27b-it:free")
+DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "qwen/qwen-2.5-72b-instruct:free")
+HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "qwen/qwen-2.5-7b-instruct:free")
+OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "qwen/qwen-2.5-72b-instruct:free")
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 
@@ -242,14 +243,24 @@ def run_scout(
             "OPENROUTER_API_KEY not set. Add it to ~/insider-routines/.env"
         )
     client = OpenAI(api_key=api_key, base_url=OPENROUTER_BASE)
-    response = client.chat.completions.create(
-        model=model or DEFAULT_MODEL,
-        max_tokens=max_tokens,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-    )
+    chosen_model = model or DEFAULT_MODEL
+    for attempt in range(4):
+        try:
+            response = client.chat.completions.create(
+                model=chosen_model,
+                max_tokens=max_tokens,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+            break
+        except Exception as exc:
+            if attempt == 3:
+                raise
+            wait = 35 * (attempt + 1)
+            log(scout_name, f"rate-limited (attempt {attempt+1}/4), retrying in {wait}s: {exc}")
+            time.sleep(wait)
     raw = (response.choices[0].message.content or "").strip()
 
     payload = _extract_last_json(raw)
