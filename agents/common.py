@@ -54,7 +54,10 @@ except ImportError:  # pragma: no cover
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 
-ROOT = Path.home() / "insider-routines"
+# Resolve relative to this file so the path works both locally
+# (~/insider-routines/agents/common.py) and on GitHub Actions
+# (/home/runner/work/<repo>/agents/common.py).
+ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / ".state"
 LOGS = STATE / "logs"
 DB_PATH = STATE / "state.db"
