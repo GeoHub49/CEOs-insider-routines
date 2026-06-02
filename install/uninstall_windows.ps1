@@ -1,7 +1,7 @@
 # uninstall_windows.ps1 — remove all Insider scheduled tasks.
 $ErrorActionPreference = "SilentlyContinue"
 $Folder = "\InsiderRoutines\"
-foreach ($n in @("eddie","maggie","frank","maya","janet","sophie","ross")) {
+foreach ($n in @("eddie","maggie","frank","maya","janet","sophia","ross")) {
     $name = "Insider-$n"
     if (Get-ScheduledTask -TaskName $name -TaskPath $Folder -ErrorAction SilentlyContinue) {
         Unregister-ScheduledTask -TaskName $name -TaskPath $Folder -Confirm:$false

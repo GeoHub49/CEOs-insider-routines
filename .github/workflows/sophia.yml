@@ -1,8 +1,8 @@
-name: Ross — Dispatcher
+name: Sophia — Consensus
 
 on:
   schedule:
-    - cron: "15,45 * * * *"  # every 30 min, offset from Sophia
+    - cron: "*/30 * * * *"  # every 30 minutes
   workflow_dispatch:
 
 permissions:
@@ -20,20 +20,16 @@ jobs:
 
       - run: pip install --quiet anthropic python-dotenv
 
-      - name: Run Ross
+      - name: Run Sophia
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          GMAIL_TO: ${{ secrets.GMAIL_TO }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python agents/ross.py
+          SOPHIA_MIN_AGREE: "3"
+        run: python agents/sophia.py
 
       - name: Persist state DB
         run: |
           git config user.name  "insider-bot"
           git config user.email "insider-bot@users.noreply.github.com"
           git add .state/state.db || true
-          git diff --cached --quiet || git commit -m "chore: ross dispatch [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: sophia consensus [skip ci]"
           git push

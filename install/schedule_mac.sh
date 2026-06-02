@@ -98,7 +98,7 @@ write_plist "maggie"   "maggie.py"   "$(weekly_at 0 19 0)"   # Sunday 19:00
 write_plist "frank"  "frank.py"  "$(weekly_at 1 8 0)"    # Monday  08:00
 write_plist "maya"  "maya.py"  "$(every_seconds 21600)" # every 6h
 write_plist "janet"   "janet.py"   "$(at_hm 17 0)"
-write_plist "sophie"  "sophie.py"  "$(every_seconds 1800)"  # every 30m
+write_plist "sophia"  "sophia.py"  "$(every_seconds 1800)"  # every 30m
 write_plist "ross" "ross.py" "$(every_seconds 1800)"  # every 30m
 
 echo

@@ -82,8 +82,8 @@ Register-InsiderTask -Name "maya" -Script "maya.py" `
 Register-InsiderTask -Name "janet" -Script "janet.py" `
     -Trigger (New-ScheduledTaskTrigger -Daily -At 17:00)
 
-# Sophie — every 30 minutes
-Register-InsiderTask -Name "sophie" -Script "sophie.py" `
+# Sophia — every 30 minutes
+Register-InsiderTask -Name "sophia" -Script "sophia.py" `
     -Trigger (New-ScheduledTaskTrigger -Once -At (Get-Date) `
                 -RepetitionInterval (New-TimeSpan -Minutes 30) `
                 -RepetitionDuration ([System.TimeSpan]::MaxValue))

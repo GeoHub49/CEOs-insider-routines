@@ -21,10 +21,10 @@ jobs:
       - name: Inject test signal
         run: python agents/inject_test_signal.py
 
-      - name: Run Sophie
+      - name: Run Sophia
         env:
           SOPHIE_MIN_AGREE: "1"
-        run: python agents/sophie.py
+        run: python agents/sophia.py
 
       - name: Run Ross
         env:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-shot test helper — injects a fake BULLISH signal so Sophie fires."""
+"""One-shot test helper — injects a fake BULLISH signal so Sophia fires."""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))

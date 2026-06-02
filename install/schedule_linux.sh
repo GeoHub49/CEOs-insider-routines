@@ -43,7 +43,7 @@ $(run "0 19 * * 0"  "maggie.py"   "maggie")
 $(run "0 8 * * 1"   "frank.py"  "frank")
 $(run "0 */6 * * *" "maya.py"  "maya")
 $(run "0 17 * * *"  "janet.py"   "janet")
-$(run "*/30 * * * *" "sophie.py"  "sophie")
+$(run "*/30 * * * *" "sophia.py"  "sophia")
 $(run "*/30 * * * *" "ross.py" "ross")
 ${MARK_END}
 EOF

@@ -4,7 +4,7 @@ Eddie — the SEC Form 4 watcher.
 
 Reads SEC Form 4 filings published in the last 24 hours, filters for
 open-market insider buys >= $100,000 by C-suite officers / directors,
-and emits a single structured signal for Sophie's consensus engine.
+and emits a single structured signal for Sophia's consensus engine.
 
 Schedule: daily, 06:00 local time.
 """

@@ -1,7 +1,7 @@
 """
 common.py — shared foundation for the 7 Insider agents.
 
-Used by Eddie / Maggie / Frank / Maya / Janet (scouts), Sophie (consensus),
+Used by Eddie / Maggie / Frank / Maya / Janet (scouts), Sophia (consensus),
 and Ross (dispatcher). Provides:
 
   - get_gemini()          Google Gemini client, reads GEMINI_API_KEY
@@ -100,7 +100,7 @@ class Signal:
 
 @dataclass
 class ConsensusEvent:
-    """Sophie's output when ≥3 scouts agree."""
+    """Sophia's output when ≥3 scouts agree."""
 
     ticker: str
     direction: str
@@ -219,6 +219,15 @@ def mark_dispatched(row_id: int) -> None:
 
 
 # ── Anthropic client ─────────────────────────────────────────────────────────
+
+
+def get_claude() -> Anthropic:
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "ANTHROPIC_API_KEY not set. Add it to ~/insider-routines/.env"
+        )
+    return Anthropic(api_key=api_key)
 
 
 def run_scout(

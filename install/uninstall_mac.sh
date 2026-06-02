@@ -2,7 +2,7 @@
 # uninstall_mac.sh — remove all Insider launchd agents.
 set -euo pipefail
 LA_DIR="$HOME/Library/LaunchAgents"
-for name in eddie maggie frank maya janet sophie ross; do
+for name in eddie maggie frank maya janet sophia ross; do
   plist="$LA_DIR/geo.insider.${name}.plist"
   [[ -f "$plist" ]] || continue
   launchctl unload "$plist" 2>/dev/null || true
