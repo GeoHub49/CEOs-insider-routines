@@ -23,6 +23,7 @@ jobs:
       - name: Run Sophie
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SOPHIE_MIN_AGREE: "1"
         run: python agents/sophie.py
 
       - name: Persist state DB
