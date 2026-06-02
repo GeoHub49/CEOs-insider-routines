@@ -67,9 +67,9 @@ if ENV_PATH.exists():
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "mistralai/mistral-7b-instruct:free")
-HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "mistralai/mistral-7b-instruct:free")
-OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "mistralai/mistral-7b-instruct:free")
+DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "nousresearch/hermes-3-llama-3.1-405b:free")
+HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "meta-llama/llama-3.2-3b-instruct:free")
+OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "nousresearch/hermes-3-llama-3.1-405b:free")
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 
