@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # uninstall_linux.sh — strip the Insider block from crontab.
 set -euo pipefail
-MARK_START="# >>> insider-routines (managed by ZeroOne) >>>"
-MARK_END="# <<< insider-routines (managed by ZeroOne) <<<"
+MARK_START="# >>> insider-routines (managed by insider-routines) >>>"
+MARK_END="# <<< insider-routines (managed by insider-routines) <<<"
 current="$(crontab -l 2>/dev/null || true)"
 stripped="$(printf '%s\n' "$current" | awk -v s="$MARK_START" -v e="$MARK_END" '
   $0==s {skip=1; next}

@@ -20,8 +20,8 @@ fi
 
 mkdir -p "$LOGS"
 
-MARK_START="# >>> insider-routines (managed by ZeroOne) >>>"
-MARK_END="# <<< insider-routines (managed by ZeroOne) <<<"
+MARK_START="# >>> insider-routines (managed by insider-routines) >>>"
+MARK_END="# <<< insider-routines (managed by insider-routines) <<<"
 
 # Pull current crontab, strip our managed block, append a fresh one.
 current="$(crontab -l 2>/dev/null || true)"

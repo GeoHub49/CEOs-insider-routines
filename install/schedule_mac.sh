@@ -27,7 +27,7 @@ write_plist() {
   shift 2
   local schedule_xml="$*"
 
-  local label="ventures.jackson.insider.${name}"
+  local label="geo.insider.${name}"
   local plist="$LA_DIR/${label}.plist"
 
   cat >"$plist" <<EOF
