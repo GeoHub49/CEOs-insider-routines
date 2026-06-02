@@ -18,11 +18,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install --quiet openai python-dotenv
+      - run: pip install --quiet anthropic python-dotenv
 
       - name: Run Sophie
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python agents/sophie.py
 
       - name: Persist state DB
