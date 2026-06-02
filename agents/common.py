@@ -4,7 +4,7 @@ common.py — shared foundation for the 7 Insider agents.
 Used by Eddie / Maggie / Frank / Maya / Janet (scouts), Sophie (consensus),
 and Ross (dispatcher). Provides:
 
-  - get_claude()          Anthropic SDK client, reads ANTHROPIC_API_KEY
+  - get_gemini()          Google Gemini client, reads GEMINI_API_KEY
   - run_scout()           Run a scout prompt → parse structured output → persist
   - read_window()         Read the rolling 7-day window of scout signals
   - record_signal()       Write a scout signal to the state store
@@ -17,7 +17,7 @@ State lives at ~/insider-routines/.state/state.db (SQLite).
 Config lives at ~/insider-routines/.env (read at startup via python-dotenv).
 
 The agents are intentionally small — they delegate the heavy lifting to
-Claude (web research, parsing) and just orchestrate the data flow.
+Gemini (web research, parsing) and just orchestrate the data flow.
 """
 
 from __future__ import annotations
@@ -43,10 +43,10 @@ except ImportError:  # pragma: no cover
     raise
 
 try:
-    from anthropic import Anthropic  # type: ignore
+    import google.generativeai as genai  # type: ignore
 except ImportError:  # pragma: no cover
     sys.stderr.write(
-        "Missing dependency: anthropic. Install with `pip install anthropic`.\n"
+        "Missing dependency: google-generativeai. Install with `pip install google-generativeai`.\n"
     )
     raise
 
@@ -66,9 +66,9 @@ if ENV_PATH.exists():
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "claude-sonnet-4-5-20250929")
-HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "claude-haiku-4-5-20250630")
-OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "claude-opus-4-7-20251020")
+DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "gemini-1.5-flash")
+HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "gemini-1.5-flash")
+OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "gemini-1.5-pro")
 
 
 # ── Direction taxonomy ───────────────────────────────────────────────────────
@@ -214,16 +214,17 @@ def mark_dispatched(row_id: int) -> None:
         c.execute("UPDATE consensus SET dispatched = 1 WHERE id = ?", (row_id,))
 
 
-# ── Claude client ────────────────────────────────────────────────────────────
+# ── Gemini client ────────────────────────────────────────────────────────────
 
 
-def get_claude() -> Anthropic:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+def get_gemini(model: str | None = None) -> "genai.GenerativeModel":
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY not set. Add it to ~/insider-routines/.env"
+            "GEMINI_API_KEY not set. Add it to ~/insider-routines/.env"
         )
-    return Anthropic(api_key=api_key)
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel(model or DEFAULT_MODEL)
 
 
 def run_scout(
@@ -234,7 +235,7 @@ def run_scout(
     model: str | None = None,
     max_tokens: int = 2048,
 ) -> Signal:
-    """Run a scout's prompt against Claude. Parse the structured trailer. Persist.
+    """Run a scout's prompt against Gemini. Parse the structured trailer. Persist.
 
     Scout prompts MUST end with a strict JSON block of the form:
 
@@ -243,17 +244,14 @@ def run_scout(
 
     This module parses the LAST JSON object in the response.
     """
-    client = get_claude()
-    msg = client.messages.create(
-        model=model or DEFAULT_MODEL,
-        max_tokens=max_tokens,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_prompt}],
+    client = get_gemini(model)
+    # Gemini takes system instruction at model level; combine for simplicity.
+    full_prompt = f"{system_prompt}\n\n---\n\n{user_prompt}"
+    response = client.generate_content(
+        full_prompt,
+        generation_config={"max_output_tokens": max_tokens},
     )
-
-    raw = "\n".join(
-        block.text for block in msg.content if hasattr(block, "text")
-    ).strip()
+    raw = response.text.strip()
 
     payload = _extract_last_json(raw)
     if payload is None:

@@ -18,11 +18,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install --quiet anthropic python-dotenv
+      - run: pip install --quiet google-generativeai python-dotenv
 
       - name: Run Sophie
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python agents/sophie.py
 
       - name: Persist state DB
