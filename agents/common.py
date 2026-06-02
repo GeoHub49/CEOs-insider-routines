@@ -43,10 +43,10 @@ except ImportError:  # pragma: no cover
     raise
 
 try:
-    from google import genai  # type: ignore
+    from openai import OpenAI  # type: ignore
 except ImportError:  # pragma: no cover
     sys.stderr.write(
-        "Missing dependency: google-genai. Install with `pip install google-genai`.\n"
+        "Missing dependency: openai. Install with `pip install openai`.\n"
     )
     raise
 
@@ -66,9 +66,11 @@ if ENV_PATH.exists():
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "gemini-2.0-flash")
-HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "gemini-2.0-flash")
-OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "gemini-2.5-pro")
+DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
+HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "meta-llama/llama-3.1-8b-instruct:free")
+OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "google/gemma-3-27b-it:free")
+
+OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 
 
 # ── Direction taxonomy ───────────────────────────────────────────────────────
@@ -214,7 +216,7 @@ def mark_dispatched(row_id: int) -> None:
         c.execute("UPDATE consensus SET dispatched = 1 WHERE id = ?", (row_id,))
 
 
-# ── Gemini client ────────────────────────────────────────────────────────────
+# ── OpenRouter client ─────────────────────────────────────────────────────────
 
 
 def run_scout(
@@ -225,7 +227,7 @@ def run_scout(
     model: str | None = None,
     max_tokens: int = 2048,
 ) -> Signal:
-    """Run a scout's prompt against Gemini. Parse the structured trailer. Persist.
+    """Run a scout's prompt against OpenRouter. Parse the structured trailer. Persist.
 
     Scout prompts MUST end with a strict JSON block of the form:
 
@@ -234,18 +236,21 @@ def run_scout(
 
     This module parses the LAST JSON object in the response.
     """
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "GEMINI_API_KEY not set. Add it to ~/insider-routines/.env"
+            "OPENROUTER_API_KEY not set. Add it to ~/insider-routines/.env"
         )
-    client = genai.Client(api_key=api_key)
-    full_prompt = f"{system_prompt}\n\n---\n\n{user_prompt}"
-    response = client.models.generate_content(
+    client = OpenAI(api_key=api_key, base_url=OPENROUTER_BASE)
+    response = client.chat.completions.create(
         model=model or DEFAULT_MODEL,
-        contents=full_prompt,
+        max_tokens=max_tokens,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
     )
-    raw = response.text.strip()
+    raw = (response.choices[0].message.content or "").strip()
 
     payload = _extract_last_json(raw)
     if payload is None:
