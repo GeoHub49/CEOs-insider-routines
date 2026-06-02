@@ -43,10 +43,10 @@ except ImportError:  # pragma: no cover
     raise
 
 try:
-    import google.generativeai as genai  # type: ignore
+    from google import genai  # type: ignore
 except ImportError:  # pragma: no cover
     sys.stderr.write(
-        "Missing dependency: google-generativeai. Install with `pip install google-generativeai`.\n"
+        "Missing dependency: google-genai. Install with `pip install google-genai`.\n"
     )
     raise
 
@@ -66,9 +66,9 @@ if ENV_PATH.exists():
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "gemini-1.5-flash")
-HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "gemini-1.5-flash")
-OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "gemini-1.5-pro")
+DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "gemini-2.0-flash")
+HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "gemini-2.0-flash")
+OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "gemini-2.5-pro")
 
 
 # ── Direction taxonomy ───────────────────────────────────────────────────────
@@ -217,16 +217,6 @@ def mark_dispatched(row_id: int) -> None:
 # ── Gemini client ────────────────────────────────────────────────────────────
 
 
-def get_gemini(model: str | None = None) -> "genai.GenerativeModel":
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "GEMINI_API_KEY not set. Add it to ~/insider-routines/.env"
-        )
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel(model or DEFAULT_MODEL)
-
-
 def run_scout(
     scout_name: str,
     system_prompt: str,
@@ -244,12 +234,16 @@ def run_scout(
 
     This module parses the LAST JSON object in the response.
     """
-    client = get_gemini(model)
-    # Gemini takes system instruction at model level; combine for simplicity.
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY not set. Add it to ~/insider-routines/.env"
+        )
+    client = genai.Client(api_key=api_key)
     full_prompt = f"{system_prompt}\n\n---\n\n{user_prompt}"
-    response = client.generate_content(
-        full_prompt,
-        generation_config={"max_output_tokens": max_tokens},
+    response = client.models.generate_content(
+        model=model or DEFAULT_MODEL,
+        contents=full_prompt,
     )
     raw = response.text.strip()
 

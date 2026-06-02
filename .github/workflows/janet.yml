@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install --quiet google-generativeai python-dotenv
+      - run: pip install --quiet google-genai python-dotenv
 
       - name: Run Janet
         env:
