@@ -67,9 +67,9 @@ if ENV_PATH.exists():
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "nousresearch/hermes-3-llama-3.1-405b:free")
+DEFAULT_MODEL = os.environ.get("INSIDER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
 HAIKU_MODEL = os.environ.get("INSIDER_MODEL_FAST", "meta-llama/llama-3.2-3b-instruct:free")
-OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "nousresearch/hermes-3-llama-3.1-405b:free")
+OPUS_MODEL = os.environ.get("INSIDER_MODEL_DEEP", "meta-llama/llama-3.3-70b-instruct:free")
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 
@@ -261,7 +261,11 @@ def run_scout(
             wait = 35 * (attempt + 1)
             log(scout_name, f"rate-limited (attempt {attempt+1}/4), retrying in {wait}s: {exc}")
             time.sleep(wait)
-    raw = (response.choices[0].message.content or "").strip()
+    if not response.choices:
+        log(scout_name, "empty response from model — recording NEUTRAL")
+        raw = ""
+    else:
+        raw = (response.choices[0].message.content or "").strip()
 
     payload = _extract_last_json(raw)
     if payload is None:
