@@ -49,7 +49,7 @@ Entry zone:   <price range or condition, e.g. "$145–$148 on pullback to 20-day
 Stop-loss:    <level or rule, e.g. "$139 (daily close below 200-day MA)">
 Target 1:     <first target>
 Target 2:     <second target>
-Risk/Reward:  <ratio, e.g. 1:2.5>
+Risk/Reward:  <ratio — MINIMUM 1:2.5. If you cannot find a valid setup with R:R ≥ 2.5, write "NO VALID SETUP" and explain why.>
 
 Rationale:
 <2–4 sentences explaining WHY this trade makes sense given the signals.
